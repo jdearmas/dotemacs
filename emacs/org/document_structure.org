@@ -1,0 +1,135 @@
+#+TITLE: 2: Document Structure
+
+* Headlines
+  
+* Visibility Cycling
+  ‘C-c C-x b’ (‘org-tree-to-indirect-buffer’)
+  
+
+* Motion
+‘C-c C-j’ (‘org-goto’)
+
+* Structure Editing
+
+ ‘M-<RET>’ (‘org-meta-return’)
+      Insert a new heading, item or row.
+
+ ‘C-c @’ (‘org-mark-subtree’)
+      Mark the subtree at point.  Hitting repeatedly marks subsequent
+      subtrees of the same level as the marked subtree.
+
+ ‘C-c C-x C-w’ (‘org-cut-subtree’)
+      Kill subtree, i.e., remove it from buffer but save in kill ring.
+      With a numeric prefix argument N, kill N sequential subtrees.
+
+‘C-c C-w’ (‘org-refile’)
+     Refile entry or region to a different location.  See *note Refile
+     and Copy::.
+
+‘C-c ^’ (‘org-sort’)
+     Sort same-level entries.  When there is an active region, all
+     entries in the region are sorted.  Otherwise the children of the
+     current headline are sorted.  The command prompts for the sorting
+     method, which can be alphabetically, numerically, by time—first
+     timestamp with active preferred, creation time, scheduled time,
+     deadline time—by priority, by TODO keyword—in the sequence the
+     keywords have been defined in the setup—or by the value of a
+     property.  Reverse sorting is possible as well.  You can also
+     supply your own function to extract the sorting key.  With a ‘C-u’
+     prefix, sorting is case-sensitive.
+
+‘C-x n s’ (‘org-narrow-to-subtree’)
+     Narrow buffer to current subtree.
+
+‘C-x n b’ (‘org-narrow-to-block’)
+     Narrow buffer to current block.
+
+‘C-x n w’ (‘widen’)
+     Widen buffer to remove narrowing.
+  
+‘C-c *’ (‘org-toggle-heading’)
+     Turn a normal line or plain list item into a headline—so that it
+     becomes a subheading at its location. 
+
+* Sparse Trees
+
+  
+  ‘C-c /’ (‘org-sparse-tree’)
+     This prompts for an extra key to select a sparse-tree creating
+     command.
+
+     The highlights disappear when the buffer is changed by an editing
+     command, or by ressing ‘C-c C-c’(2).
+
+     When called with a ‘C-u’ prefix argument, previous highlights are
+     kept, so several calls to this command can be stacked.
+
+  ‘M-g n’ or ‘M-g M-n’ (‘next-error’)
+     Jump to the next sparse tree match in this buffer.
+
+  ‘M-g p’ or ‘M-g M-p’ (‘previous-error’)
+     Jump to the previous sparse tree match in this buffer.
+
+     (setq org-agenda-custom-commands
+           '(("f" occur-tree "FIXME")))
+
+  'C-c C-e C-v'
+     to export only the visible part of the document and print the
+     resulting file.
+
+* Plain Lists
+  :PROPERTIES:
+  :ORDERED:  t
+  :END:
+
+  - hello
+  - hello :: there!
+  - howdy
+  - partner
+  - there
+
+    
+‘<TAB>’ (‘org-cycle’)
+     Items can be folded just like headline levels.  Normally this works
+
+‘M-<RET>’ (‘org-insert-heading’)
+
+* Drawers
+  - Note taken on [2020-11-24 Tue 11:19] \\
+    Howdy!
+  - Note taken on [2020-11-24 Tue 11:18] \\
+    A quick note in the logbook drawer
+  :PROPERTIES:
+  I'm in
+  :END:
+
+  You want to keep info close but hidden.
+
+  :TEST:
+  yo, im hidden lmao
+  :END:
+
+  ‘C-c C-x d’.
+  
+:LOGBOOK:
+
+:END:
+  You can interactively insert a drawer at point by calling
+    ‘org-insert-drawer’.
+  
+
+  ‘C-u C-c C-x d’.
+
+* Blocks
+
+    Org mode uses ‘#+BEGIN’ ... ‘#+END’ blocks for various purposes from
+    including source code examples (see *note Literal Examples::) to
+    capturing time logging information (see *note Clocking Work Time::).
+    These blocks can be folded and unfolded by pressing ‘<TAB>’ in the
+    ‘#+BEGIN’ line.  You can also get all blocks folded at startup by
+    configuring the variable ‘org-hide-block-startup’ or on a per-file basis
+    by using
+
+	#+STARTUP: hideblocks
+	#+STARTUP: nohideblocks
+

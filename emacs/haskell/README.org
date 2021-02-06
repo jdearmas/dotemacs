@@ -1,0 +1,37 @@
+#+TITLE: The Haskell Environment in Emacs
+#+AUTHOR: John De Armas
+#+OPTIONS: toc:2
+
+* create emacs environment
+
+** DONE 1. create haskell-emacs-env.el file
+   CLOSED: [2020-11-22 Sun 22:57]
+
+   #+begin_src sh
+     touch haskell-emacs-env.el
+     ls
+   #+end_src
+
+   #+RESULTS:
+   | create_emacs_enviroment.sh  |
+   | create_emacs_enviroment.sh~ |
+   | haskell-emacs-env.el        |
+   | README.org                  |
+   | README.org~                 |
+
+   #+begin_src sh
+   cat haskell-emacs-env.el	
+   #+end_src
+
+   #+RESULTS:
+   
+**  2. create_emacs_environment.sh
+
+  1. turn on emacs
+  2. load haskell-mode
+  3. set up windows
+
+* create work environment
+
+  1. create a project directory files
+  2. create the necessary files

@@ -1,0 +1,6 @@
+;; c-emacs-env configuration file
+
+;; install the package, if not installed already
+
+    (unless (package-installed-p 'haskell-mode)
+      (package-install 'haskell-mode))

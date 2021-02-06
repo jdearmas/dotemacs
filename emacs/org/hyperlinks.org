@@ -1,0 +1,69 @@
+#+TITLE: 4: Hyperlinks
+
+* Link Format
+
+   The general link format, however, looks like this:
+
+   [[www.example.com][DESCRIPTION]]
+   [[LINK]]
+
+   Some ‘\’, ‘[’ and ‘]’ characters in the LINK part need to be “escaped”.
+
+   You may use the function ‘org-link-escape’, which turns a link
+   string into its escaped form.
+
+   To also edit the invisible LINK part, use ‘C-c C-l’ with point on
+   the link (see *note Handling Links::).
+* Internal Links
+
+    A link that does not look like a URL—i.e., does not start with a known
+    scheme or a file name—refers to the current document.
+
+    [[file:~/tutorial.html][tutorial]]
+
+    [[file:~/docs/wiki/index.wiki][index]] 
+
+    'C-c C-o'
+      Follows a link
+
+    Headings
+    [[*Link Format]]
+
+    Elements
+    [[test-elem]]
+
+    #+NAME: test-elem
+    | a | b |
+    |---+---|
+    | c | d |
+
+    'C-c &'
+      Following a link pushes a mark onto Org’s own mark ring.  You can
+      return to the previous position with
+* Radio Targets
+
+
+  
+Org can automatically turn any occurrences of certain target names in
+normal text into a link.
+
+
+target:
+<<<My Target>>>
+
+changes each occurrence of 'my target' from text to link.
+
+my target
+
+the target list during editing, press ‘C-c C-c’ with point on or at a
+target.
+
+* External Links
+
+
+  http://www.example.com
+* Handling Links
+* Links Outside of Org mode
+* Link Abbrevitaions
+* Search options
+* custom searches
