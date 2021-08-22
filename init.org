@@ -1,0 +1,265 @@
+#+TITLE: The Org Mode GNU Emacs Initialization File
+#+PROPERTY: header-args :tangle yes
+
+
+* About
+
+This file contains the GNU Emacs initalization file,
+`init.el`, in an Org file. 
+
+The source blocks of this file will be 'tangled' into the 'init.el'
+file.
+
+This configuration was heavily inspired by [[https://github.com/larstvei][Lars Tveito]]'s [[https://github.com/larstvei/dot-emacs][dot-emacs]]. 
+
+I thank him deeply and the long-line of Emacs-ers who came before us.
+
+
+* Configurations
+
+** Meta
+
+Meta
+
+All changes to the configuration should be done in init.org, not in
+init.el. Any changes in the init.el will be overwritten by saving
+init.org. The init.el in this repo should not be tracked by git, and
+is replaced the first time Emacs is started (assuming it has been
+renamed to ~/.emacs.d).
+
+
+Emacs can’t load .org-files directly, but org-mode provides functions
+to extract the code blocks and write them to a file. There are
+multiple ways of handling this; like suggested by this StackOverflow
+post, one could just use org-babel-load-file, but I had problems with
+byte-compilation. Previously I tracked both the org.- and el.-files,
+but the git commits got a little messy. So here is a new approach.
+
+
+When this configuration is loaded for the first time, the init.el is
+the file that is loaded. It looks like this:
+
+
+#+begin_src elisp :tangle no
+;; This file replaces itself with the actual configuration at first run.
+;; We can't tangle without org!
+(require 'org)
+;; Open the configuration
+(find-file (concat user-emacs-directory "init.org"))
+;; tangle it
+(org-babel-tangle)
+;; load it
+(load-file (concat user-emacs-directory "init.el"))
+;; finally byte-compile it
+(byte-compile-file (concat user-emacs-directory "init.el"))
+#+end_src
+
+The init.el should (after the first run) mirror the source blocks in
+the init.org. We can use C-c C-v t to run org-babel-tangle, which
+extracts the code blocks from the current file into a source-specific
+file (in this case a .el-file).
+
+
+ To avoid doing this each time a change is made we can add a function
+ to the after-save-hook ensuring to always tangle and byte-compile the
+ org-document after changes.
+
+
+ #+begin_src elisp
+ (defun tangle-init ()
+   "If the current buffer is 'init.org' the code-blocks are
+ tangled, and the tangled file is compiled."
+   (when (equal (buffer-file-name)
+		(expand-file-name (concat user-emacs-directory "init.org")))
+     ;; Avoid running hooks when tangling.
+     (let ((prog-mode-hook nil))
+       (org-babel-tangle)
+       (byte-compile-file (concat user-emacs-directory "init.el")))))
+
+ (add-hook 'after-save-hook 'tangle-init)
+ #+end_src
+
+** Packages
+
+
+   Managing extensions for Emacs is simplified using =package= which is
+   built in to Emacs 24 and newer. To load downloaded packages we need to
+   initialize =package=. =cl= is a library that contains many functions from
+   Common Lisp, and comes in handy quite often, so we want to make sure it's
+   loaded, along with =package=, which is obviously needed.
+
+   #+BEGIN_SRC emacs-lisp
+   (require 'package)
+   (package-initialize)
+   #+END_SRC
+
+   Packages can be fetched from different mirrors, [[http://melpa.milkbox.net/#/][melpa]] is the largest
+   archive and is well maintained.
+
+   #+BEGIN_SRC emacs-lisp
+   (setq package-archives
+         '(("gnu" . "https://elpa.gnu.org/packages/")
+           ("MELPA" . "https://melpa.org/packages/")))
+   #+END_SRC
+
+   The configuration assumes that the packages listed below are
+   installed. To ensure we install missing packages if they are missing.
+
+   #+BEGIN_SRC emacs-lisp
+   (let* ((package--builtins nil)
+          (packages
+           '(auto-compile         ; automatically compile Emacs Lisp libraries
+             cider                ; Clojure Interactive Development Environment
+             clj-refactor         ; Commands for refactoring Clojure code
+             ;company              ; Modular text completion framework
+             ;company-coq          ; A collection of extensions PG's Coq mode
+             ;counsel              ; Various completion functions using Ivy
+             ;counsel-projectile   ; Ivy integration for Projectile
+             ;define-word          ; display the definition of word at point
+             ;diff-hl              ; Highlight uncommitted changes using VC
+             green-phosphor-theme ; An opinionated pack of modern color-themes
+             ;erlang               ; Erlang major mode
+	         elpy                 ; The next-generation in Python/Emacs IDE
+             expand-region        ; Increase selected region by semantic units
+             focus                ; Dim color of text in surrounding sections
+             ;golden-ratio         ; Automatic resizing windows to golden ratio
+             haskell-mode         ; A Haskell editing mode
+             jedi                 ; Python auto-completion for Emacs
+             js2-mode             ; Improved JavaScript editing mode
+             lsp-mode             ; LSP mode
+             lsp-java             ; Java support for lsp-mode
+             numpydoc             ; Automatically insert NumPy style docstrings in Python function definitions.
+             magit                ; control Git from Emacs
+             markdown-mode        ; Emacs Major mode for Markdown-formatted files
+             ;maude-mode           ; Emacs mode for the programming language Maude
+             ;minizinc-mode        ; Major mode for MiniZinc code
+             multiple-cursors     ; Multiple cursors for Emacs
+             writeroom-mode       ; Minor mode for a nice writing environment
+             org                  ; Outline-based notes management and organizer
+             org-bullets          ; Show bullets in org-mode as UTF-8 characters
+             org-roam             ; Roam Research replica with Org-mode
+             org-roam-server      ; Org Roam Database Visualizer
+             paredit              ; minor mode for editing parentheses
+             pdf-tools            ; Emacs support library for PDF files
+             projectile           ; Manage and navigate projects in Emacs easily
+             ;proof-general        ; A generic Emacs interface for proof assistants
+             ;racket-mode          ; Major mode for Racket language
+             slime                ; Superior Lisp Interaction Mode for Emacs
+             smex                 ; M-x interface with Ido-style fuzzy matching
+             sphinx-mode          ; A Minor mode providing sphinx support.
+             try                  ; Try out Emacs packages
+             vterm                ; A terminal via libvterm
+             which-key            ; Display available keybindings in popup
+             z3-mode)))           ; z3/SMTLIBv2 interactive development
+     (when (memq window-system '(mac ns))
+       (push 'exec-path-from-shell packages)
+       (push 'reveal-in-osx-finder packages))
+     (let ((packages (seq-remove 'package-installed-p packages)))
+       (print packages)
+       (when packages
+         ;; Install uninstalled packages
+         (package-refresh-contents)
+         (mapc 'package-install packages))))
+   #+END_SRC
+
+** Python
+#+begin_src elisp
+(setq python-shell-interpreter "python3")
+(put 'downcase-region 'disabled nil)
+#+end_src
+
+*** Sphinx
+
+ Sphinx is a tool that makes it easy to create intelligent and
+ beautiful documentation, written by Georg Brandl and licensed under
+ the BSD license.
+
+**** numpydoc
+
+An Emacs Lisp packag to automatically insert NumPy style docstrings
+in Python function definitions.
+
+
+Calling numpydoc-generate parses the function at point (the cursor can
+be anywhere in the function body). The parsing detects argument names,
+type hints, exceptions, and the return type hint. This information is
+used to generate a docstring.
+
+*** Elpy
+
+ Elpy can then be activated by running M-x elpy-enable. This can be
+ made automatic by adding the following to your .emacs:
+
+
+ #+begin_src elisp
+ (elpy-enable)
+ (setq elpy-rpc-python-command "python3")
+ (add-hook 'elpy-mode-hook (lambda ()
+                            (add-hook 'before-save-hook
+                                      'elpy-black-fix-code nil t)))
+ #+end_src
+
+** Visual
+
+*** Theme
+    Change the color-theme to =green-phosphor=.
+
+    #+BEGIN_SRC emacs-lisp
+    (load-theme 'green-phosphor t)
+    #+END_SRC
+
+*** Writeroom
+
+#+begin_src elisp
+(setq writeroom-width 88)
+#+end_src
+
+** Variables
+
+#+begin_src elisp
+(setq user-org-init-file "/home/jcd/.config/emacs/init.org")
+
+#+end_src
+
+** Org Mode
+
+*** Hooks
+#+begin_src elisp
+  (add-hook 'org-mode-hook (lambda () 
+                             (org-num-mode)
+                             (org-indent-mode)
+                             (auto-fill-mode)))
+#+end_src
+
+#+RESULTS:
+: t
+
+*** Org-Babel
+[[info:org#Languages][info:org#Languages]]
+#+begin_src elisp
+  (org-babel-do-load-languages
+   'org-babel-load-languages
+   '(
+     (shell . t)
+     ))
+
+
+#+end_src
+** Keybindings
+
+'C-c w'	: writeroom-mode:	to quickly focus in on the contents of the active buffer
+'C-C a'	: shell:		to quickly open a shell
+'C-c i'	: find-init-org:	to  to quickly open the Org file that contains my untangled Emacs init file
+
+#+begin_src elisp
+(global-set-key (kbd "C-c w") 'writeroom-mode)
+(global-set-key (kbd "C-c s") 'shell)
+(global-set-key (kbd "C-c i") (lambda () (interactive) (find-file user-org-init-file)))
+#+end_src
+
+
+*** Python/Elpy
+
+#+begin_src elisp
+(define-key elpy-mode-map (kbd "C-c C-n") #'numpydoc-generate)
+#+end_src
